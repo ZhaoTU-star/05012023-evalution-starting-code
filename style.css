@@ -1,0 +1,113 @@
+#app {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 20px;
+  }
+  
+  .inventory-container {
+    width: 45%;
+  }
+  
+  .cart-container {
+    width: 45%;
+  }
+  
+  h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+  
+  li button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin-left: 10px;
+    cursor: pointer;
+  }
+  
+  li button:hover {
+    background-color: #3e8e41;
+  }
+  
+  li button:disabled {
+    background-color: #bfbfbf;
+    cursor: default;
+  }
+  
+  .amount-wrapper {
+    display: flex;
+    align-items: center;
+  }
+  
+  .amount-btn {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 6px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin-left: 10px;
+    cursor: pointer;
+  }
+  
+  .amount-btn:hover {
+    background-color: #3e8e41;
+  }
+  
+  .cart-wrapper {
+    border: 1px solid #ddd;
+    padding: 10px;
+  }
+  
+  .cart-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+  }
+  
+  .checkout-btn,
+  .clear-btn {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .checkout-btn:hover,
+  .clear-btn:hover {
+    background-color: #3e8e41;
+  }
+  
+  .checkout-btn:disabled,
+  .clear-btn:disabled {
+    background-color: #bfbfbf;
+  }
