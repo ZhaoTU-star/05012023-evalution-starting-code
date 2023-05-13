@@ -2,17 +2,17 @@ const API = (() => {
   const URL = "http://localhost:3000";
   const getCart = () => {
     // define your method to get cart data
-    fetch(`URL/cart`).then((data) => data.json());
+    fetch(`${URL}/cart`).then((data) => data.json());
   };
 
   const getInventory = () => {
     // define your method to get inventory data
-    fetch(`URL/inventory`).then((data) => data.json());
+    fetch(`${URL}/inventory`).then((data) => data.json());
   };
 
   const addToCart = (inventoryItem) => {
     // define your method to add an item to cart
-    fetch(`URL/cart`, {
+    fetch(`${URL}/cart`, {
       method: "POST",
       body: JSON.stringify({
         id: inventoryItem.id,
@@ -27,7 +27,7 @@ const API = (() => {
 
   const updateCart = (id, newAmount) => {
     // define your method to update an item in cart
-    fetch(`URL/cart/${id}`, {
+    fetch(`${URL}/cart/${id}`, {
       method: "PUT",
       body: JSON.stringify({amount: newAmount}),
       headers: {
@@ -38,7 +38,7 @@ const API = (() => {
 
   const deleteFromCart = (id) => {
     // define your method to delete an item in cart
-    fetch(`URL/cart/${id}`, {
+    fetch(`${URL}/cart/${id}`, {
       method: "DELETE",
     }).then((data) => data.json());
   };
@@ -70,26 +70,27 @@ const Model = (() => {
       this.#inventory = [];
       this.#cart = [];
     }
-    getCart() {
+    get cart() {
       return this.#cart;
     }
 
-    getInventory() {
+    get inventory() {
+      // console.log(this.#inventory)
       return this.#inventory;
     }
 
-    setCart(newCart) {
+    set cart(newCart) {
       this.#cart = newCart;
       // update view
       // this.#onChange();
     }
-    setInventory(newInventory) {
+    set inventory(newInventory) {
       this.#inventory = newInventory;
     }
 
     // Function to add an item to the cart
     addToCart(item, amount) {
-      const existingItem = this.getCart().find((cartItem) => cartItem.id === item.id);
+      const existingItem = this.cart().find((cartItem) => cartItem.id === item.id);
 
       if (existingItem) {
         existingItem.amount += amount;
@@ -100,21 +101,21 @@ const Model = (() => {
           amount: amount,
         };
 
-        this.getCart().push(newItem);
+        this.cart().push(newItem);
       }
     }
 
     // Function to remove an item from the cart
     removeFromCart(item) {
-      const index = this.getCart().findIndex((cartItem) => cartItem.id === item.id);
+      const index = this.cart().findIndex((cartItem) => cartItem.id === item.id);
       if (index > -1) {
-        this.getCart().splice(index, 1);
+        this.cart().splice(index, 1);
       }
     }
 
     // Function to clear the cart
     clearCart() {
-      this.setCart([]);
+      this.cart([]);
     }
 
     // Function to update the server with the current state of the cart
@@ -194,20 +195,16 @@ const View = (() => {
   }
 
   const renderInventory = (inventory) =>{
-    inventoryList.innerHTML = "";
+    console.log(inventory);
+    let inventoryTemp = "";
     inventory.forEach((item) => {
-      const listItem = document.createElement("li");
-      listItem.setAttribute("data-id", item.id);
-      listItem.innerHTML = `
-        <div>
-          <span>${item.name}</span>
-          <input class="amount" type="number" min="1" value="1">
-          <button class="add-to-cart">Add to cart</button>
-        </div>
-      `;
-      inventoryList.appendChild(listItem);
+      const content = item.content;
+      console.log("content",content);
+      const liTemp = `<li data-id="${item.id}">${content}<button class="add-to-cart-btn">Add to Cart</button></li>`;
+      inventoryTemp += liTemp;
     });
-  }
+    inventoryList.innerHTML = inventoryTemp;
+  };
 
   const renderCart = (cart) => {
     cartList.innerHTML = "";
@@ -252,12 +249,15 @@ const Controller = ((model, view) => {
   const init = () => {
     try {
       // fetch initial data from server
-      const inventoryData = state.getInventory();
-      const cartData = state.getCart();
+      const inventoryData = model.getInventory().then((data) => {
+        state.inventory = data;
+      });
+      console.log(inventoryData);
+      const cartData = model.getCart();
 
       // set initial state
-      state.setInventory(inventoryData);
-      state.setCart(cartData);
+      model.getInventory(inventoryData);
+      model.getCart(cartData);
 
       // render initial view
       view.renderInventory(inventoryData);
@@ -288,24 +288,24 @@ const Controller = ((model, view) => {
   const handleAddToCart = (itemId, amount) => {
     try {
       // check if item already in cart
-      const existingItem = state.getCartItemById(itemId);
+      const existingItem = model.getCartItemById(itemId);
 
       if (existingItem) {
         // update existing item
-        state.updateCart(itemId, existingItem.amount + amount);
+        model.updateCart(itemId, existingItem.amount + amount);
       } else {
         // add new item
-        const item = state.getInventoryItem(itemId);
+        const item = model.getInventoryItem(itemId);
 
         if (!item) {
           throw new Error(`Item with id ${itemId} does not exist in inventory`);
         }
 
-        state.addToCart({ ...item, amount });
+        model.addToCart({ ...item, amount });
       }
 
       // render updated view
-      view.renderCart(state.getCart());
+      view.renderCart(model.getCart());
     } catch (error) {
       console.error(error);
     }
@@ -314,10 +314,10 @@ const Controller = ((model, view) => {
   const handleDelete = (itemId) => {
     try {
       // delete item from state
-      state.deleteFromCart(itemId);
+      model.deleteFromCart(itemId);
 
       // render updated view
-      view.renderCart(state.getCart());
+      view.renderCart(model.getCart());
     } catch (error) {
       console.error(error);
     }
@@ -326,10 +326,10 @@ const Controller = ((model, view) => {
   const handleCheckout = () => {
     try {
       // delete all items from cart
-      state.clearCart();
+      model.clearCart();
 
       // render updated view
-      view.renderCart(state.getCart());
+      view.renderCart(model.getCart());
     } catch (error) {
       console.error(error);
     }
